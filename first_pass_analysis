@@ -173,4 +173,3 @@ plot(fitted(model), residuals(model))
 # Bayes generalised linear multivariate multilevel models
 model_brms <- brm(log(R5) ~ Condition + (1 + Condition | Participant) + (1 + Condition | Item), data, save_all_pars = FALSE) # converges
 summary(model_brms)
-#
