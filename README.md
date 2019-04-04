@@ -1,6 +1,6 @@
 # Undergraduate Project on Message-Level Prediction During Reading
 
-use 'fixing_participant_numbers' script to prepare all data files before using analysis scripts
+Use 'fixing_participant_numbers' script to prepare all data files before using analysis scripts.
 
 Data files:  
 
