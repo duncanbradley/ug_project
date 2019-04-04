@@ -1,0 +1,88 @@
+library(tidyverse)
+library(lme4)
+library(lmerTest)
+library(emmeans)
+library(fitdistrplus)
+library(brms)
+library(afex)
+
+# REGION 4 ####
+# Region 4 is the critical region (the question)
+# Read in first pass data
+data <- read_csv("FPRO2.csv")
+# condition labels, 1 = prediction facilitated, 2 = prediction unfacilitated 
+data$Condition <- recode(data$Condition, "1" = "facilitated", "2" = "unfacilitated")
+data$Condition <- as.factor(data$Condition)
+# recode 100 to 1
+data[data$R4 == "100",]$R4 <- 1
+
+# model
+model <- glmer(R4 ~ Condition + (1 + Condition | Participant) + (1 + Condition | Item), data, family = "binomial") # fails to converge
+null.model <- glmer(R4 ~ (1 + Condition | Participant) + (1 + Condition | Item), data, family = "binomial") # singular fit
+model <- glmer(R4 ~ Condition + (1 | Participant) + (1 + Condition | Item), data, family = "binomial") # fails to converge
+null.model <- glmer(R4 ~ (1 | Participant) + (1 + Condition | Item), data, family = "binomial") # converges
+
+model <- glmer(R4 ~ Condition + (1 + Condition | Participant) + (1 | Item), data, family = "binomial") # converges
+null.model <- glmer(R4 ~ (1 + Condition | Participant) + (1 | Item), data, family = "binomial") # converges
+# most complex structure that will converge and isn't a singular fit
+
+summary(model)
+# not significant
+anova(model, null.model)
+
+# REML = FALSE not required for BIC values in this model - it is disregarded
+BIC(model)
+BIC(null.model)
+BICdiff <- (BIC(null.model) - BIC(model))
+BICdiff
+exp(BICdiff/2)
+
+# this is the most maximal model
+bayes_model <- brm(R4 ~ Condition + (1 + Condition | Participant) + (1 + Condition | Item), data, family = "bernoulli") # does not converge
+bayes_model <- brm(R4 ~ Condition + (1 + Condition | Participant) + (1 | Item), data, family = "bernoulli") # converges
+bayes_model <- brm(R4 ~ Condition + (1 | Participant) + (1 + Condition | Item), data, family = "bernoulli") # converges
+# using model with random slopes for participants, as glmer model uses this
+
+bayes_model <- brm(R4 ~ Condition + (1 + Condition | Participant) + (1 | Item), data, family = "bernoulli") # converges
+summary(bayes_model)
+
+# Region 5 ####
+
+# Read in data
+data <- read_csv("FPRO.csv")
+# condition labels, 1 = prediction facilitated, 2 = prediction unfacilitated 
+data$Condition <- recode(data$Condition, "1" = "facilitated", "2" = "unfacilitated")
+data$Condition <- as.factor(data$Condition)
+# recode 100 to 1
+data[data$R5 == "100",]$R5 <- 1
+
+# model
+model <- glmer(R5 ~ Condition + (1 + Condition | Participant) + (1 + Condition | Item), data, family = "binomial") # singular fit
+null.model <- glmer(R5 ~ (1 + Condition | Participant) + (1 + Condition | Item), data, family = "binomial") # singular fit
+model <- glmer(R5 ~ Condition + (1 | Participant) + (1 + Condition | Item), data, family = "binomial") # singular fit
+null.model <- glmer(R5 ~ (1 | Participant) + (1 + Condition | Item), data, family = "binomial") # singular fit
+model <- glmer(R5 ~ Condition + (1 + Condition | Participant) + (1 | Item), data, family = "binomial") # singular fit
+null.model <- glmer(R5 ~ (1 + Condition | Participant) + (1 | Item), data, family = "binomial") # failed to converge
+model <- glmer(R5 ~ Condition + (1 | Participant) + (1 | Item), data, family = "binomial") # singular fit
+null.model <- glmer(R5 ~ (1 | Participant) + (1 | Item), data, family = "binomial") # singular fit
+model <- glmer(R5 ~ Condition + (1 | Item), data, family = "binomial") # singular fit
+null.model <- glmer(R5 ~ (1 | Item), data, family = "binomial") # singular fit
+
+model <- glmer(R5 ~ Condition + (1 | Participant), data, family = "binomial") # converges
+null.model <- glmer(R5 ~ (1 | Participant), data, family = "binomial") # converges
+summary(model)
+anova(model, null.model)
+
+# REML = FALSE not required for BIC values in this model - it is disregarded
+BIC(model)
+BIC(null.model)
+BICdiff <- (BIC(null.model) - BIC(model))
+BICdiff
+exp(BICdiff/2)
+
+bayes_model <- brm(R5 ~ Condition + (1 + Condition | Participant) + (1 + Condition | Item), data, family = "bernoulli") # does not converge
+bayes_model <- brm(R5 ~ Condition + (1 + Condition | Participant) + (1 | Item), data, family = "bernoulli") # does not converge
+bayes_model <- brm(R5 ~ Condition + (1 | Participant) + (1 + Condition | Item), data, family = "bernoulli") # does not converge
+bayes_model <- brm(R5 ~ Condition + (1 | Participant) + (1 | Item), data, family = "bernoulli") # converges
+summary(bayes_model)
+
