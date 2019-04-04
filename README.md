@@ -2,7 +2,8 @@
 
 use 'fixing_participant_numbers' script to prepare all data files before using analysis scripts
 
-Data files:
+Data files:  
+
 FP = First Pass  
 
 RP = Regression Path  
