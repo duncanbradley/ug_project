@@ -1,0 +1,47 @@
+# FIXING PARTICIPANT NUMBERS ####
+# Participant 36 in all files is actually the second half of Participant 35
+# The trial failed half way through so the second half was started as a new Participant
+# This artefact is present in all datasets (first pass, regression path, total time, regressions out)
+# This script fixes all datasets this by merging Participant 36 and 35
+# then corrects the participant numbers for all subsequent participants
+# The files are saved with '2' after the orignal file name
+
+# First Pass
+FP <- read_csv("FPs.csv")
+FP[FP$Participant == 36,]$Participant <- 35
+FP[FP$Participant == 37,]$Participant <- 36
+FP[FP$Participant == 38,]$Participant <- 37
+FP[FP$Participant == 39,]$Participant <- 38
+FP[FP$Participant == 40,]$Participant <- 39
+FP[FP$Participant == 41,]$Participant <- 40
+write.csv(FP, "FPs2.csv", row.names = FALSE)
+
+# Regression Path
+RP <- read_csv("RPs.csv")
+RP[RP$Participant == 36,]$Participant <- 35
+RP[RP$Participant == 37,]$Participant <- 36
+RP[RP$Participant == 38,]$Participant <- 37
+RP[RP$Participant == 39,]$Participant <- 38
+RP[RP$Participant == 40,]$Participant <- 39
+RP[RP$Participant == 41,]$Participant <- 40
+write.csv(RP, "RPs2.csv", row.names = FALSE)
+
+# Total Time
+TT <- read_csv("TTs.csv")
+TT[TT$Participant == 36,]$Participant <- 35
+TT[TT$Participant == 37,]$Participant <- 36
+TT[TT$Participant == 38,]$Participant <- 37
+TT[TT$Participant == 39,]$Participant <- 38
+TT[TT$Participant == 40,]$Participant <- 39
+TT[TT$Participant == 41,]$Participant <- 40
+write.csv(TT, "TTs2.csv", row.names = FALSE)
+
+# Regressions Out
+FPRO <- read_csv("FPRO.csv")
+FPRO[FPRO$Participant == 36,]$Participant <- 35
+FPRO[FPRO$Participant == 37,]$Participant <- 36
+FPRO[FPRO$Participant == 38,]$Participant <- 37
+FPRO[FPRO$Participant == 39,]$Participant <- 38
+FPRO[FPRO$Participant == 40,]$Participant <- 39
+FPRO[FPRO$Participant == 41,]$Participant <- 40
+write.csv(FPRO, "FPRO2.csv", row.names = FALSE)
