@@ -2,8 +2,8 @@
 
 use 'fixing_participant_numbers' script to prepare all data files before using analysis scripts
 
-# Data files:
-# FP = First Pass
-# RP = Regression Path
-# TT = Total Time
-# FPRO = First Pass Regressions Out
+Data files:
+FP = First Pass
+RP = Regression Path
+TT = Total Time
+FPRO = First Pass Regressions Out
