@@ -1,0 +1,172 @@
+library(tidyverse)
+library(lme4)
+library(lmerTest)
+library(emmeans)
+library(fitdistrplus)
+library(brms)
+library(afex)
+
+# Region 4 ####
+# Region 4 is the critical region (the question)
+# Read in first pass data
+data <- read_csv("TTs2.csv")
+# condition labels, 1 = prediction facilitated, 2 = prediction unfacilitated 
+data$Condition <- recode(data$Condition, "1" = "facilitated", "2" = "unfacilitated")
+data$Condition <- as.factor(data$Condition)
+# Throw away zeroes
+data <- data %>% filter(R4 != 0)
+
+# Visualise ####
+
+# flat violin code
+source("https://gist.githubusercontent.com/benmarwick/2a1bb0133ff568cbe28d/raw/fb53bd97121f7f9ce947837ef1a4c65a73bffb3f/geom_flat_violin.R")
+
+# preparing data for visualisation
+data_long <- read_csv("TTs2.csv") %>%
+  gather(Region, RT, R1:R6, factor_key=TRUE) %>%  # making Reading Time a single column
+  filter(Region == 'R4' | Region == 'R5' ) %>%  # filtering out all regions other than R4 and R5
+  filter(RT != 0)  # Filter by non-zero values
+data_long$Participant <- as.factor(data_long$Participant)  # making participant a factor
+data_long$Condition <- as.factor(data_long$Condition)  # making condition a factor
+data_long$Region <- as.factor(data_long$Region)  # making region a factor
+data_long$Condition <- recode(data_long$Condition, "1" = "Facilitated", "2" = "Unfacilitated")  # naming levels of condition
+data_long$Region <- recode(data_long$Region, "R4" = "Question", "R5" = "Reply")  # naming regions
+
+theme = theme(
+  text = element_text(size = 14),
+  axis.title.x = element_blank(),
+  axis.title.y = element_text(size = 16),
+  axis.text = element_text(size = 12),
+  legend.title=element_text(size=14),
+  legend.text=element_text(size=14),
+  panel.spacing=unit(0,"cm"),
+  panel.background = element_rect(fill = "white", colour = "white"),
+  panel.grid.major.y = element_line(linetype= 'solid', colour = "grey"),
+  panel.border = element_rect(fill = NA, colour = "grey", size = 1),
+  strip.placement = "outside",
+  strip.text = element_text(size = 14),
+  strip.background.x = element_blank())
+
+data_long %>% 
+  ggplot(aes(x = Condition, y = RT)) +
+  geom_flat_violin(position = position_nudge(x = .13, y = 0), alpha = .7) +
+  geom_jitter(alpha = .1, width = .1) +
+  geom_boxplot(width = .1, guides = FALSE, outlier.shape = NA, alpha = 0.5, position=position_dodge2()) +
+  facet_grid(~ Region, switch="x") +
+  ylab("Total Reading Time (ms)") +
+  scale_y_continuous(breaks = seq(0, 10000, 1500), expand = expand_scale(mult = c(0, 0.05))) +
+  theme
+
+# exported with 800x500 aspect ratio
+
+# so it looks like the facilitated condition is has slightly faster reading times, on average
+
+# Model assuming normality of residuals - singular fit error with more complex models or when slope is on participant
+model.null <- lmer(R4 ~ (1 | Participant) + (1 | Item), data) 
+model <- lmer(R4 ~ Condition + (1 | Participant) + (1  | Item), data) 
+summary(model)
+# significant
+
+anova(model, model.null)
+# significant 
+
+qqnorm(residuals(model))
+qqline(residuals(model))
+plot(fitted(model), residuals(model))
+
+descdist(data$R4)
+# closest to lognormal
+
+# Model with log transform
+model <- lmer(log(R4) ~ Condition + (1 + Condition | Participant) + (1 + Condition | Item), data) # fails to converge
+model.null <- lmer(log(R4) ~ (1 + Condition | Participant) + (1 + Condition | Item), data) # fails to converge
+model <- lmer(log(R4) ~ Condition + (1 + Condition | Participant) + (1 | Item), data) # converges
+model.null <- lmer(log(R4) ~ (1 + Condition | Participant) + (1 | Item), data) # converges
+summary(model)
+model <- lmer(log(R4) ~ Condition + (1 | Participant) + (1 + Condition | Item), data) # converges
+model.null <- lmer(log(R4) ~ (1 | Participant) + (1 + Condition | Item), data) # converges
+summary(model)
+
+# two different random effects structures converge
+# one with random intercepts for participants and random slopes for PARTICIPANTS
+# and one with random intercepts for participants and random slopes for ITEMS
+
+# variance explained by the slope in the first model is:
+0.003499
+# variance explained by the slope in second model is:
+0.003545
+# these are very close but the second model's slope explains slightly more variance, so will choose this model
+
+model <- lmer(log(R4) ~ Condition + (1 | Participant) + (1 + Condition | Item), data) # converges
+model.null <- lmer(log(R4) ~ (1 | Participant) + (1 + Condition | Item), data) # converges
+summary(model)
+# significant
+anova(model, model.null)
+MLmodel <- lmer(log(R4) ~ Condition + (1 | Participant) + (1 + Condition | Item), data, REML=FALSE) 
+MLnull.model <- lmer(log(R4) ~ (1 | Participant) + (1 + Condition | Item), data, REML=FALSE) 
+BIC(MLmodel)
+BIC(MLnull.model)
+BICdiff <- (BIC(MLnull.model) - BIC(MLmodel))
+BICdiff
+exp(BICdiff/2)
+
+qqnorm(residuals(model))
+qqline(residuals(model))
+plot(fitted(model), residuals(model))
+# good fit
+
+model_brms <- brm(log(R4) ~ Condition + (1 + Condition | Participant) + (1 + Condition | Item), data, save_all_pars = FALSE) # converges
+summary(model_brms)
+
+# Region 5 ####
+# Region 5 is the post-critical region (the response)
+
+# Read in data
+data <- read_csv("TTs2.csv")
+# condition labels, 1 = prediction facilitated, 2 = prediction unfacilitated 
+data$Condition <- recode(data$Condition, "1" = "facilitated", "2" = "unfacilitated")
+data$Condition <- as.factor(data$Condition)
+data <- data %>% filter(R5 != 0)
+
+# Model assuming normality of residuals - singular fit error with more complex models
+model.null <- lmer(R5 ~ (1 | Participant) + (1 | Item), data) 
+model <- lmer(R5 ~ Condition + (1 | Participant) + (1 | Item), data) 
+summary(model)
+# signficant
+
+anova(model, model.null)
+# significant
+
+qqnorm(residuals(model))
+qqline(residuals(model))
+plot(fitted(model), residuals(model))
+
+descdist(data$R5)
+# looks pretty close to lognormal
+
+# Model with log transform
+model <- lmer(log(R5) ~ Condition + (1 + Condition | Participant) + (1 + Condition | Item), data) # fails to converge
+null.model <- lmer(log(R5) ~ (1 + Condition | Participant) + (1 + Condition | Item), data) # converges
+model <- lmer(log(R5) ~ Condition + (1 | Participant) + (1 + Condition | Item), data) # fails to converge
+null.model <- lmer(log(R5) ~ (1 | Participant) + (1 + Condition | Item), data) # converges
+
+model <- lmer(log(R5) ~ Condition + (1 + Condition | Participant) + (1 | Item), data) # converges
+null.model <- lmer(log(R5) ~ (1 + Condition | Participant) + (1 | Item), data) # converges
+summary(model)
+# significant
+anova(model, null.model)
+MLmodel <- lmer(log(R5) ~ Condition + (1 + Condition | Participant) + (1 | Item), data, REML = FALSE) 
+MLnull.model <- lmer(log(R5) ~ (1 + Condition | Participant) + (1 | Item), data, REML = FALSE) 
+BIC(MLmodel)
+BIC(MLnull.model)
+BICdiff <- (BIC(MLnull.model) - BIC(MLmodel))
+BICdiff
+exp(BICdiff/2)
+
+qqnorm(residuals(model))
+qqline(residuals(model))
+plot(fitted(model), residuals(model))
+# much better
+
+model_brms <- brm(log(R5) ~ Condition + (1 + Condition | Participant) + (1 + Condition | Item), data, save_all_pars = FALSE) # converges
+summary(model_brms)
