@@ -1,6 +1,7 @@
 # Undergraduate Project on Message-Level Prediction During Reading
 
-Use 'fixing_participant_numbers' script to prepare all data files before using analysis scripts.
+Use 'fixing_participant_numbers' script to prepare all data files before using analysis scripts.  
+Script 'condition_item_slope_analysis' is for assessing assessing the direction of the effect of condition (facilitated/unfacilitated)
 
 Data files:  
 
