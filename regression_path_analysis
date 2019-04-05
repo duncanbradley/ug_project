@@ -102,6 +102,10 @@ BIC(MLnull.model)
 BICdiff <- (BIC(MLnull.model) - BIC(MLmodel))
 BICdiff
 exp(BICdiff/2)
+# and then Bayes factor in favour of null (for illustration):
+BICdiff <- (BIC(MLmodel) - BIC(MLnull.model))
+BICdiff
+exp(BICdiff/2)
 
 qqnorm(residuals(model))
 qqline(residuals(model))
