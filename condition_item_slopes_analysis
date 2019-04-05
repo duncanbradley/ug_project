@@ -1,0 +1,212 @@
+# For assessing the direction of the effect of condition (facilitated/unfacilitated)
+# for each reading time measure for each region
+
+library(tidyverse)
+library(lme4)
+
+# FIRST PASS Region 4 ####
+# Region 4 is the critical region (the question)
+# Read in first pass data
+data <- read_csv("FPs2.csv")
+# condition labels, 1 = prediction facilitated, 2 = prediction unfacilitated 
+data$Condition <- recode(data$Condition, "1" = "Facilitated", "2" = "Unfacilitated")
+#make Condition a factor
+data$Condition <- as.factor(data$Condition)
+# Filter by non-zero values for R4 (remove all cases where there is no fixation on R4)
+data <- data %>% filter(R4 != 0)
+
+model <- lmer(R4 ~ Condition + (1 + Condition | Item), data) 
+summary(model)
+
+slopes <- coef(model)$Item
+
+slopes$item <- seq(1:32)
+
+slopes$facilitated <- slopes$`(Intercept)`
+slopes$unfacilitated <- slopes$`(Intercept)` + slopes$ConditionUnfacilitated
+
+new_slopes <- slopes %>% gather(key = Condition, value = RT, facilitated, unfacilitated)
+
+# visualisations:
+new_slopes %>%
+  ggplot(aes(x = as.factor(Condition), y = RT, group = item, label = item)) +
+  geom_line()
+
+slopes %>%
+  mutate(difference = unfacilitated - facilitated) %>%
+  ggplot(aes(x = difference)) + 
+  geom_histogram()
+
+sum(slopes$ConditionUnfacilitated < 0)
+sum(slopes$ConditionUnfacilitated > 0)
+
+# FIRST PASS Region 5 ####
+# Read in first pass data
+data <- read_csv("FPs2.csv")
+# condition labels, 1 = prediction facilitated, 2 = prediction unfacilitated 
+data$Condition <- recode(data$Condition, "1" = "facilitated", "2" = "Unfacilitated")
+data$Condition <- as.factor(data$Condition)
+data <- data %>% filter(R5 != 0)
+
+model <- lmer(R5 ~ Condition + (1 + Condition | Item), data) 
+summary(model)
+
+slopes <- coef(model)$Item
+
+slopes$item <- seq(1:32)
+
+slopes$facilitated <- slopes$`(Intercept)`
+slopes$unfacilitated <- slopes$`(Intercept)` + slopes$ConditionUnfacilitated
+
+new_slopes <- slopes %>% gather(key = Condition, value = RT, facilitated, unfacilitated)
+
+# visualisations:
+new_slopes %>%
+  ggplot(aes(x = as.factor(Condition), y = RT, group = item, label = item)) +
+  geom_line()
+
+slopes %>%
+  mutate(difference = unfacilitated - facilitated) %>%
+  ggplot(aes(x = difference)) + 
+  geom_histogram()
+
+sum(slopes$ConditionUnfacilitated < 0)
+sum(slopes$ConditionUnfacilitated > 0)
+
+# REGRESSION PATH Region 4 ####
+# Region 4 is the critical region (the question)
+# Read in regression path data
+data <- read_csv("RPs2.csv")
+# condition labels, 1 = prediction facilitated, 2 = prediction unfacilitated 
+data$Condition <- recode(data$Condition, "1" = "Facilitated", "2" = "Unfacilitated")
+#make Condition a factor
+data$Condition <- as.factor(data$Condition)
+# Filter by non-zero values for R4 (remove all cases where there is no fixation on R4)
+data <- data %>% filter(R4 != 0)
+
+model <- lmer(R4 ~ Condition + (1 + Condition | Item), data) 
+summary(model)
+
+slopes <- coef(model)$Item
+
+slopes$item <- seq(1:32)
+
+slopes$facilitated <- slopes$`(Intercept)`
+slopes$unfacilitated <- slopes$`(Intercept)` + slopes$ConditionUnfacilitated
+
+new_slopes <- slopes %>% gather(key = Condition, value = RT, facilitated, unfacilitated)
+
+# visualisations:
+new_slopes %>%
+  ggplot(aes(x = as.factor(Condition), y = RT, group = item, label = item)) +
+  geom_line()
+
+slopes %>%
+  mutate(difference = unfacilitated - facilitated) %>%
+  ggplot(aes(x = difference)) + 
+  geom_histogram()
+
+sum(slopes$ConditionUnfacilitated < 0)
+sum(slopes$ConditionUnfacilitated > 0)
+
+# REGRESSION PATH Region 5 ####
+# Read in regression path data
+data <- read_csv("RPs2.csv")
+# condition labels, 1 = prediction facilitated, 2 = prediction Unfacilitated 
+data$Condition <- recode(data$Condition, "1" = "facilitated", "2" = "Unfacilitated")
+data$Condition <- as.factor(data$Condition)
+data <- data %>% filter(R5 != 0)
+
+model <- lmer(R5 ~ Condition + (1 + Condition | Item), data) 
+summary(model)
+
+slopes <- coef(model)$Item
+
+slopes$item <- seq(1:32)
+
+slopes$facilitated <- slopes$`(Intercept)`
+slopes$unfacilitated <- slopes$`(Intercept)` + slopes$ConditionUnfacilitated
+
+new_slopes <- slopes %>% gather(key = Condition, value = RT, facilitated, unfacilitated)
+
+# visualisations:
+new_slopes %>%
+  ggplot(aes(x = as.factor(Condition), y = RT, group = item, label = item)) +
+  geom_line()
+
+slopes %>%
+  mutate(difference = unfacilitated - facilitated) %>%
+  ggplot(aes(x = difference)) + 
+  geom_histogram()
+
+sum(slopes$ConditionUnfacilitated < 0)
+sum(slopes$ConditionUnfacilitated > 0)
+
+# TOTAL TIME Region 4 ####
+# Region 4 is the critical region (the question)
+# Read in total time data
+data <- read_csv("TTs2.csv")
+# condition labels, 1 = prediction facilitated, 2 = prediction unfacilitated 
+data$Condition <- recode(data$Condition, "1" = "Facilitated", "2" = "Unfacilitated")
+#make Condition a factor
+data$Condition <- as.factor(data$Condition)
+# Filter by non-zero values for R4 (remove all cases where there is no fixation on R4)
+data <- data %>% filter(R4 != 0)
+
+model <- lmer(R4 ~ Condition + (1 + Condition | Item), data) 
+summary(model)
+
+slopes <- coef(model)$Item
+
+slopes$item <- seq(1:32)
+
+slopes$facilitated <- slopes$`(Intercept)`
+slopes$unfacilitated <- slopes$`(Intercept)` + slopes$ConditionUnfacilitated
+
+new_slopes <- slopes %>% gather(key = Condition, value = RT, facilitated, unfacilitated)
+
+# visualisations:
+new_slopes %>%
+  ggplot(aes(x = as.factor(Condition), y = RT, group = item, label = item)) +
+  geom_line()
+
+slopes %>%
+  mutate(difference = unfacilitated - facilitated) %>%
+  ggplot(aes(x = difference)) + 
+  geom_histogram()
+
+sum(slopes$ConditionUnfacilitated < 0)
+sum(slopes$ConditionUnfacilitated > 0)
+
+# TOTAL TIME Region 5 ####
+# Read in total time data
+data <- read_csv("TTs2.csv")
+# condition labels, 1 = prediction facilitated, 2 = prediction Unfacilitated 
+data$Condition <- recode(data$Condition, "1" = "facilitated", "2" = "Unfacilitated")
+data$Condition <- as.factor(data$Condition)
+data <- data %>% filter(R5 != 0)
+
+model <- lmer(R5 ~ Condition + (1 + Condition | Item), data) 
+summary(model)
+
+slopes <- coef(model)$Item
+
+slopes$item <- seq(1:32)
+
+slopes$facilitated <- slopes$`(Intercept)`
+slopes$unfacilitated <- slopes$`(Intercept)` + slopes$ConditionUnfacilitated
+
+new_slopes <- slopes %>% gather(key = Condition, value = RT, facilitated, unfacilitated)
+
+# visualisations:
+new_slopes %>%
+  ggplot(aes(x = as.factor(Condition), y = RT, group = item, label = item)) +
+  geom_line()
+
+slopes %>%
+  mutate(difference = unfacilitated - facilitated) %>%
+  ggplot(aes(x = difference)) + 
+  geom_histogram()
+
+sum(slopes$ConditionUnfacilitated < 0)
+sum(slopes$ConditionUnfacilitated > 0)
