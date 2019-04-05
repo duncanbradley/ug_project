@@ -13,6 +13,15 @@ data <- read_csv("FPRO2.csv")
 # condition labels, 1 = prediction facilitated, 2 = prediction unfacilitated 
 data$Condition <- recode(data$Condition, "1" = "facilitated", "2" = "unfacilitated")
 data$Condition <- as.factor(data$Condition)
+
+# descriptive statistics
+data %>% 
+  group_by(Condition) %>%
+  summarise(mean(R4), sd(R4)) 
+data %>% 
+  group_by(Condition) %>%
+  summarise(mean(R5), sd(R5))
+
 # recode 100 to 1
 data[data$R4 == "100",]$R4 <- 1
 
