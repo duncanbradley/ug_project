@@ -12,3 +12,5 @@ RP = Regression Path
 TT = Total Time  
 
 FPRO = First Pass Regressions Out
+
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/www.github.com/duncanbradley/ug_project/master?urlpath=rstudio)
